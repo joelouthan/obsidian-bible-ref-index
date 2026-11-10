@@ -122,6 +122,7 @@ export function buildIndex(pages: Page[], order: string[] | null, opt: BuildOpti
   const nt = nav(NT_START, BOOKS.length);
   if (ot) out.push(`**Old Testament:** ${ot}`, "");
   if (nt) out.push(`**New Testament:** ${nt}`, "");
+  if (opt.coverageOnIndex) out.push("**Coverage:** [Which chapters of the Bible this book cites](#coverage)", "");
 
   for (const [b, entries] of byBook) {
     out.push(`## ${BOOKS[b].name}`, "");

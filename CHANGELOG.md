@@ -4,6 +4,18 @@ All notable changes to Scripture Index are listed here. Versions follow [Semanti
 
 0.2.0 is the first published release. Versions 0.1.0 and 0.1.1 were tagged but never published; they're listed so you can see how the plugin got here.
 
+## [0.3.0] - 2026-11-10
+
+### Added
+
+- **Coverage link in the quick links.** When **Coverage on index page** is on, the index page now shows a link under the Old and New Testament quick links that jumps to the Coverage section:
+
+  ```markdown
+  **Coverage:** [Which chapters of the Bible this book cites](#coverage)
+  ```
+
+  With coverage off, the page is unchanged.
+
 ## [0.2.1] - 2026-11-10
 
 ### Added
@@ -80,6 +92,7 @@ Not published.
 - The page is rewritten only when its content changes, so synced or git-tracked vaults don't see empty changes.
 - Works on desktop and mobile.
 
+[0.3.0]: https://github.com/joelouthan/obsidian-bible-ref-index/releases/tag/0.3.0
 [0.2.1]: https://github.com/joelouthan/obsidian-bible-ref-index/releases/tag/0.2.1
 [0.2.0]: https://github.com/joelouthan/obsidian-bible-ref-index/releases/tag/0.2.0
 [0.1.1]: https://github.com/joelouthan/obsidian-bible-ref-index/commit/a088468

@@ -42,7 +42,7 @@ Each link's text is the page's first `# ` heading. If a page has none (for examp
 | Only pages listed in SUMMARY.md | on | mdBook builds only the pages listed in `SUMMARY.md`, so links to any other page would be broken. |
 | Exclude | `CHANGELOG.md` | Comma-separated paths inside the book folder. |
 | Coverage report | *(empty = off)* | Vault path for a coverage note (see below). Keep it outside the book folder to keep it private. |
-| Coverage on index page | off | Also append the coverage section to the published index page. |
+| Coverage on index page | off | Also append the coverage section to the published index page, with a **Coverage** link under the quick links at the top. |
 
 The command **Rebuild Scripture index now** rebuilds the page immediately.
 

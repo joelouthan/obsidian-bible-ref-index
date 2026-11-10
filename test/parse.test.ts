@@ -65,4 +65,8 @@ test("coverage", () => {
   assert.match(r.coverage, /## Never cited\n\nExodus · Leviticus/);
   assert.doesNotMatch(r.markdown, /Coverage/);
   assert.match(buildIndex([], null, { outputPath: "i.md", title: "I", headerImage: "", includeChapters: true, coverageOnIndex: true }).markdown, /^## Coverage$/m);
+  const withCov = buildIndex([], null, { outputPath: "i.md", title: "I", headerImage: "", includeChapters: true, coverageOnIndex: true }).markdown;
+  assert.match(withCov, /^\*\*Coverage:\*\* \[[^\]]+\]\(#coverage\)$/m);
+  assert.ok(withCov.indexOf("(#coverage)") < withCov.indexOf("## Coverage"));
+  assert.doesNotMatch(r.markdown, /#coverage/);
 });

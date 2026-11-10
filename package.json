@@ -1,6 +1,6 @@
 {
   "name": "obsidian-bible-ref-index",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Obsidian plugin: build an mdBook Scripture index page from every Bible reference in a folder",
   "private": true,
   "type": "module",
