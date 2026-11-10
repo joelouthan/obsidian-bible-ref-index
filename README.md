@@ -83,6 +83,10 @@ VAULT=/path/to/vault npm run install-plugin
 
 To release, bump `version` in `manifest.json` and `package.json` and add it to `versions.json`. Commit, then push a tag that matches the version exactly, with no `v` prefix (`git tag 0.2.0 && git push origin 0.2.0`). GitHub Actions builds the plugin and creates a draft release. Publish the draft.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 [MIT](LICENSE)
