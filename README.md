@@ -24,7 +24,9 @@ See it live: [theologic.us Scripture Index](https://theologic.us/scripture-index
 - Single-chapter books: `Jude 3` is indexed as Jude 1:3.
 - `.` as the chapter–verse separator (`Matthew 5.3`) and verse parts (`Romans 3:23a`)
 
-It skips code, HTML tags and comments, URLs, and link targets. It also discards references that don't exist, such as `Genesis 51:1`.
+It skips code, HTML tags and comments, URLs, and link targets.
+
+Each link's text is the page's first `# ` heading. If a page has none (for example, its title is styled HTML), the link uses the page's title from `SUMMARY.md`, then the filename. It also discards references that don't exist, such as `Genesis 51:1`.
 
 ## Settings
 

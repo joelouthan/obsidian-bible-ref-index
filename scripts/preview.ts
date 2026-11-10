@@ -2,18 +2,20 @@
 // Usage: npm run preview -- /path/to/book/src
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { buildIndex, summaryOrder } from "../src/build.ts";
+import { buildIndex, summaryOrder, summaryTitles } from "../src/build.ts";
 
 const root = process.argv[2];
 if (!root) throw new Error("usage: npm run preview -- /path/to/book/src");
 const folder = "src";
-const order = summaryOrder(readFileSync(join(root, "SUMMARY.md"), "utf8")).map((p) => `${folder}/${p}`);
+const summary = readFileSync(join(root, "SUMMARY.md"), "utf8");
+const order = summaryOrder(summary).map((p) => `${folder}/${p}`);
+const nav = summaryTitles(summary);
 const listed = new Set(order);
 const pages = (readdirSync(root, { recursive: true }) as string[])
   .filter((p) => p.endsWith(".md"))
   .map((p) => `${folder}/${p}`)
   .filter((p) => listed.has(p) && !p.endsWith("/CHANGELOG.md") && p !== `${folder}/scripture-index.md`)
-  .map((p) => ({ path: p, content: readFileSync(join(root, relative(folder, p)), "utf8") }));
+  .map((p) => ({ path: p, content: readFileSync(join(root, relative(folder, p)), "utf8"), navTitle: nav.get(relative(folder, p)) }));
 
 for (const includeChapters of [true, false]) {
   const r = buildIndex(pages, order, { outputPath: `${folder}/scripture-index.md`, title: "Scripture Index", headerImage: "", includeChapters });

@@ -1,5 +1,5 @@
 import { App, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, normalizePath } from "obsidian";
-import { buildIndex, summaryOrder, type Page } from "./build.ts";
+import { buildIndex, summaryOrder, summaryTitles, type Page } from "./build.ts";
 
 type UpdateMode = "daily" | "idle" | "manual";
 
@@ -116,9 +116,12 @@ export default class ScriptureIndexPlugin extends Plugin {
       const out = normalizePath(s.outputPath);
 
       let order: string[] | null = null;
+      let navTitles = new Map<string, string>();
       const summary = vault.getFileByPath(`${this.folder}/SUMMARY.md`);
       if (summary) {
-        order = summaryOrder(await vault.cachedRead(summary)).map((p) => `${this.folder}/${p}`);
+        const text = await vault.cachedRead(summary);
+        order = summaryOrder(text).map((p) => `${this.folder}/${p}`);
+        navTitles = new Map([...summaryTitles(text)].map(([p, t]) => [`${this.folder}/${p}`, t]));
       }
       const listed = new Set(order ?? []);
       const excluded = new Set(
@@ -129,7 +132,7 @@ export default class ScriptureIndexPlugin extends Plugin {
       for (const f of vault.getMarkdownFiles()) {
         if (!this.isSource(f.path) || excluded.has(f.path)) continue;
         if (s.onlySummaryPages && order && !listed.has(f.path)) continue; // unlisted pages aren't built, so links would 404
-        pages.push({ path: f.path, content: await vault.cachedRead(f) });
+        pages.push({ path: f.path, content: await vault.cachedRead(f), navTitle: navTitles.get(f.path) });
       }
 
       const result = buildIndex(pages, order, {

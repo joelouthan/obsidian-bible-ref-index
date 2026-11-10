@@ -1,7 +1,11 @@
 import { BOOKS } from "./books.ts";
 import { compareRefs, label, parseRefs, type Ref } from "./parse.ts";
 
-export type Page = { path: string; content: string };
+export type Page = {
+  path: string;
+  content: string;
+  navTitle?: string; // title from SUMMARY.md, used when the page has no "# " heading
+};
 
 export type BuildOptions = {
   outputPath: string; // vault path of the index page, e.g. "Theologicus/scripture-index.md"
@@ -28,10 +32,18 @@ export function summaryOrder(summary: string): string[] {
   return [...summary.matchAll(/\]\(([^)\s]+\.md)\)/g)].map((m) => decodeURI(m[1]).replace(/^\.\//, ""));
 }
 
-export function pageTitle(md: string, path: string): string {
+/** Link text of each page in SUMMARY.md, keyed by path relative to the book folder. */
+export function summaryTitles(summary: string): Map<string, string> {
+  return new Map(
+    [...summary.matchAll(/\[([^\]]+)\]\(([^)\s]+\.md)\)/g)].map((m) => [decodeURI(m[2]).replace(/^\.\//, ""), m[1]]),
+  );
+}
+
+/** Page title: first "# " heading, else its SUMMARY.md title (pages styled with an HTML title), else the filename. */
+export function pageTitle(md: string, path: string, navTitle?: string): string {
   const body = md.replace(/^(```|~~~)[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, "");
   const h1 = /^#[ \t]+(.+?)[ \t#]*$/m.exec(body)?.[1];
-  const raw = h1 ?? path.split("/").pop()!.replace(/\.md$/, "");
+  const raw = h1 ?? (navTitle?.trim() || path.split("/").pop()!.replace(/\.md$/, ""));
   return raw
     .replace(/<[^>]+>/g, "")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
@@ -80,7 +92,7 @@ export function buildIndex(pages: Page[], order: string[] | null, opt: BuildOpti
       refs++;
       found = true;
     }
-    if (found) titles.set(page.path, pageTitle(page.content, page.path));
+    if (found) titles.set(page.path, pageTitle(page.content, page.path, page.navTitle));
   }
 
   const byBook = new Map<number, { ref: Ref; pages: Set<string> }[]>();

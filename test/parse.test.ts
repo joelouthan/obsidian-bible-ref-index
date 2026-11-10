@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseRefs, label } from "../src/parse.ts";
 import { BOOKS } from "../src/books.ts";
-import { relLink, summaryOrder, pageTitle, chapterRanges, buildIndex } from "../src/build.ts";
+import { relLink, summaryOrder, summaryTitles, pageTitle, chapterRanges, buildIndex } from "../src/build.ts";
 
 const refs = (s: string) => parseRefs(s).map((r) => `${BOOKS[r.book].name} ${label(r)}`);
 
@@ -44,6 +44,11 @@ test("helpers", () => {
   assert.equal(relLink("Theologicus/scripture-index.md", "Theologicus/genesis/genesis22.md"), "genesis/genesis22.md");
   assert.equal(relLink("Theologicus/scripture-index.md", "Theologicus/New Page (draft).md"), "New%20Page%20%28draft%29.md");
   assert.deepEqual(summaryOrder("- [A](a/b.md)\n  - [B](./c.md)\n- [Rev]()"), ["a/b.md", "c.md"]);
+  const html = '<p style="font-size: 2em"><a class="header" href="#x">Behold Our God</a></p>\n\n## The Text\n';
+  assert.equal(pageTitle(html, "d/01-behold-our-god.md", "I. Behold Our God"), "I. Behold Our God");
+  assert.equal(pageTitle(html, "d/01-behold-our-god.md"), "01-behold-our-god");
+  assert.equal(pageTitle("# Real Title\n", "d/x.md", "Nav Title"), "Real Title");
+  assert.deepEqual([...summaryTitles("- [I. Behold Our God](d/01.md)\n- [Rev]()")], [["d/01.md", "I. Behold Our God"]]);
   assert.equal(pageTitle('<img class="x">\n\n# **Genesis 22** [The](x.md) Sacrifice\n', "g.md"), "Genesis 22 The Sacrifice");
 });
 
