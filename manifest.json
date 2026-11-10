@@ -1,0 +1,10 @@
+{
+  "id": "bible-ref-index",
+  "name": "Bible Reference Index",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.7",
+  "description": "Builds a Scripture index page, with plain Markdown links for mdBook, of every Bible reference in a folder.",
+  "author": "Joseph Louthan",
+  "isDesktopOnly": false,
+  "authorUrl": "https://theologic.us"
+}

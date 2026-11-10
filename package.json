@@ -1,0 +1,20 @@
+{
+  "name": "obsidian-bible-ref-index",
+  "version": "0.1.0",
+  "description": "Obsidian plugin: build an mdBook Scripture index page from every Bible reference in a folder",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && node esbuild.config.mjs",
+    "test": "node --test test/*.test.ts",
+    "preview": "node scripts/preview.ts",
+    "install-plugin": "npm run build && mkdir -p \"$VAULT/.obsidian/plugins/bible-ref-index\" && cp main.js manifest.json \"$VAULT/.obsidian/plugins/bible-ref-index/\""
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "builtin-modules": "^5.5.0",
+    "esbuild": "^0.28.2",
+    "obsidian": "^1.14.4",
+    "typescript": "^7.0.2"
+  }
+}
