@@ -1,17 +1,21 @@
-# Push a tag that matches manifest.json's version (e.g. `git tag 0.1.0 && git push origin 0.1.0`).
-# This builds the plugin and creates a draft GitHub release with main.js and manifest.json attached.
+# Push a tag that matches manifest.json's version (e.g. `git tag 0.2.1 && git push origin 0.2.1`).
+# This builds the plugin, attests the build provenance of the release files, and creates a
+# draft GitHub release with main.js and manifest.json attached. The release notes are the
+# version's section of CHANGELOG.md.
 name: Release
 on:
   push:
     tags: ["*"]
 permissions:
-  contents: write
+  contents: write # create the release
+  id-token: write # sign the attestation (Sigstore)
+  attestations: write # store the attestation
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - run: npm ci
@@ -19,7 +23,22 @@ jobs:
       - run: npm run build
       - name: Check tag matches manifest version
         run: test "$(node -p 'require("./manifest.json").version')" = "${GITHUB_REF_NAME}"
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            main.js
+            manifest.json
+      - name: Release notes from CHANGELOG.md
+        run: |
+          awk -v v="$GITHUB_REF_NAME" '
+            index($0, "## [" v "]") == 1 { on = 1; next }
+            on && /^## \[/ { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          test -s notes.md || { echo "No CHANGELOG.md section for $GITHUB_REF_NAME"; exit 1; }
+          printf '\n**Full changelog:** [CHANGELOG.md](https://github.com/%s/blob/main/CHANGELOG.md)\n' "$GITHUB_REPOSITORY" >> notes.md
       - name: Create draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --draft --generate-notes main.js manifest.json
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --draft --notes-file notes.md main.js manifest.json

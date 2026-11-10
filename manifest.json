@@ -1,7 +1,7 @@
 {
   "id": "bible-ref-index",
   "name": "Scripture Index",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "minAppVersion": "1.5.7",
   "description": "Builds a Scripture index page, with plain Markdown links for mdBook, of every Bible reference in a folder.",
   "author": "Joseph Louthan",

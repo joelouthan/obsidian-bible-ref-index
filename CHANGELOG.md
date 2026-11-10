@@ -4,6 +4,22 @@ All notable changes to Scripture Index are listed here. Versions follow [Semanti
 
 0.2.0 is the first published release. Versions 0.1.0 and 0.1.1 were tagged but never published; they're listed so you can see how the plugin got here.
 
+## [0.2.1] - 2026-11-10
+
+### Added
+
+- **Build provenance attestations.** Each release's `main.js` and `manifest.json` now come with a signed GitHub artifact attestation. It proves the files were built from this repository by its release workflow, not uploaded by hand. To verify a download:
+
+  ```bash
+  gh attestation verify main.js -R joelouthan/obsidian-bible-ref-index
+  ```
+
+### Changed
+
+- Release notes are now taken from this changelog.
+
+No changes to the plugin's behavior.
+
 ## [0.2.0] - 2026-11-10
 
 ### Added
@@ -64,6 +80,7 @@ Not published.
 - The page is rewritten only when its content changes, so synced or git-tracked vaults don't see empty changes.
 - Works on desktop and mobile.
 
+[0.2.1]: https://github.com/joelouthan/obsidian-bible-ref-index/releases/tag/0.2.1
 [0.2.0]: https://github.com/joelouthan/obsidian-bible-ref-index/releases/tag/0.2.0
 [0.1.1]: https://github.com/joelouthan/obsidian-bible-ref-index/commit/a088468
 [0.1.0]: https://github.com/joelouthan/obsidian-bible-ref-index/commit/e947f87
