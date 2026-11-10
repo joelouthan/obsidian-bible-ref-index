@@ -1,4 +1,4 @@
-# Bible Reference Index
+# Scripture Index
 
 Builds a **Scripture index page** for a book you write in Obsidian and publish with [mdBook](https://rust-lang.github.io/mdBook/). The plugin finds every Bible reference in your book folder and writes one page that lists each passage in canonical order, with links back to the pages that cite it.
 
@@ -46,7 +46,7 @@ The plugin rewrites the index page only when its content changes. If your vault 
 
 ## Getting started
 
-1. Install **Bible Reference Index** from Community plugins and enable it.
+1. Install **Scripture Index** from Community plugins and enable it.
 2. Set **Book folder** to the folder that holds your mdBook `SUMMARY.md`. Set **Index page** to a path inside it.
 3. Run **Rebuild Scripture index now**.
 4. Add the page to `SUMMARY.md` once, for example: `- [Scripture Index](scripture-index.md)`.

@@ -141,7 +141,7 @@ export default class BibleRefIndexPlugin extends Plugin {
         );
       }
     } catch (e) {
-      console.error("Bible Reference Index:", e);
+      console.error("Scripture Index:", e);
       new Notice(`Scripture index failed: ${e instanceof Error ? e.message : e}`);
     } finally {
       this.writing = false;
