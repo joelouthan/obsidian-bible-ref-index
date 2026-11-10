@@ -11,6 +11,8 @@ interface Settings {
   includeChapters: boolean;
   onlySummaryPages: boolean;
   exclude: string; // comma-separated paths relative to `folder`
+  coveragePath: string; // "" = no coverage report
+  coverageOnIndex: boolean;
   updateMode: UpdateMode;
   idleMinutes: number;
   lastWritten: number; // epoch ms, internal
@@ -24,6 +26,8 @@ const DEFAULTS: Settings = {
   includeChapters: true,
   onlySummaryPages: true,
   exclude: "CHANGELOG.md",
+  coveragePath: "",
+  coverageOnIndex: false,
   updateMode: "daily",
   idleMinutes: 5,
   lastWritten: 0,
@@ -31,7 +35,7 @@ const DEFAULTS: Settings = {
 
 const DAY = 24 * 60 * 60 * 1000;
 
-export default class BibleRefIndexPlugin extends Plugin {
+export default class ScriptureIndexPlugin extends Plugin {
   settings: Settings = { ...DEFAULTS };
   private dirty = false;
   private lastEdit = 0;
@@ -45,6 +49,20 @@ export default class BibleRefIndexPlugin extends Plugin {
       id: "rebuild-now",
       name: "Rebuild Scripture index now",
       callback: () => this.writeIndex(true),
+    });
+
+    this.addCommand({
+      id: "open-coverage",
+      name: "Open Scripture coverage report",
+      callback: async () => {
+        const path = normalizePath(this.settings.coveragePath || "");
+        if (!this.settings.coveragePath) {
+          new Notice("Set a coverage report path in the Scripture Index settings first.");
+          return;
+        }
+        if (!this.app.vault.getFileByPath(path)) await this.writeIndex(true);
+        await this.app.workspace.openLinkText(path, "", true);
+      },
     });
 
     this.app.workspace.onLayoutReady(() => {
@@ -71,7 +89,13 @@ export default class BibleRefIndexPlugin extends Plugin {
   }
 
   private isSource(path: string) {
-    return path.startsWith(this.folder + "/") && path.endsWith(".md") && path !== normalizePath(this.settings.outputPath);
+    const s = this.settings;
+    return (
+      path.startsWith(this.folder + "/") &&
+      path.endsWith(".md") &&
+      path !== normalizePath(s.outputPath) &&
+      !(s.coveragePath && path === normalizePath(s.coveragePath))
+    );
   }
 
   private tick() {
@@ -113,19 +137,11 @@ export default class BibleRefIndexPlugin extends Plugin {
         title: s.title,
         headerImage: s.headerImage,
         includeChapters: s.includeChapters,
+        coverageOnIndex: s.coverageOnIndex,
       });
 
-      // Only touch the file when the content changed, so the mirror/auto-commit don't churn.
-      const existing = vault.getFileByPath(out);
-      let changed = true;
-      if (existing) {
-        await vault.process(existing, (old) => {
-          changed = old !== result.markdown;
-          return result.markdown;
-        });
-      } else {
-        await vault.create(out, result.markdown);
-      }
+      const changed = await this.writeIfChanged(out, result.markdown);
+      if (s.coveragePath) await this.writeIfChanged(normalizePath(s.coveragePath), result.coverage);
 
       this.dirty = false;
       s.lastWritten = Date.now();
@@ -135,7 +151,8 @@ export default class BibleRefIndexPlugin extends Plugin {
       const inSummary = order?.includes(out) ?? false;
       if (manual || changed) {
         new Notice(
-          `Scripture index ${changed ? "updated" : "unchanged"}: ${result.passages} passages from ${result.pages} pages.` +
+          `Scripture index ${changed ? "updated" : "unchanged"}: ${result.passages} passages from ${result.pages} pages; ` +
+            `${result.chaptersCited}/${result.chaptersTotal} chapters cited.` +
             (inSummary ? "" : `\nAdd "- [${s.title}](${rel})" to SUMMARY.md to publish it.`),
           inSummary ? 5000 : 12000,
         );
@@ -147,10 +164,25 @@ export default class BibleRefIndexPlugin extends Plugin {
       this.writing = false;
     }
   }
+
+  /** Write only when the content differs, so sync and git see no change otherwise. */
+  private async writeIfChanged(path: string, content: string): Promise<boolean> {
+    const vault = this.app.vault;
+    const file = vault.getFileByPath(path);
+    if (file) {
+      if ((await vault.read(file)) === content) return false;
+      await vault.process(file, () => content);
+      return true;
+    }
+    const dir = path.split("/").slice(0, -1).join("/");
+    if (dir && !vault.getFolderByPath(dir)) await vault.createFolder(dir);
+    await vault.create(path, content);
+    return true;
+  }
 }
 
 class SettingsTab extends PluginSettingTab {
-  constructor(app: App, private plugin: BibleRefIndexPlugin) {
+  constructor(app: App, private plugin: ScriptureIndexPlugin) {
     super(app, plugin);
   }
 
@@ -213,6 +245,18 @@ class SettingsTab extends PluginSettingTab {
       .setName("Exclude")
       .setDesc("Comma-separated paths inside the book folder to skip.")
       .addText((t) => t.setValue(s.exclude).onChange(async (v) => ((s.exclude = v), await save())));
+
+    new Setting(containerEl).setName("Coverage").setHeading();
+
+    new Setting(containerEl)
+      .setName("Coverage report")
+      .setDesc("Vault path for a note listing which chapters of each book are cited and which are not, e.g. Planning/Scripture coverage.md. Keep it outside the book folder to keep it private. Empty = off.")
+      .addText((t) => t.setValue(s.coveragePath).onChange(async (v) => ((s.coveragePath = v.trim()), await save())));
+
+    new Setting(containerEl)
+      .setName("Coverage on index page")
+      .setDesc("Also append the coverage section to the published index page.")
+      .addToggle((t) => t.setValue(s.coverageOnIndex).onChange(async (v) => ((s.coverageOnIndex = v), await save())));
 
     new Setting(containerEl)
       .setName("Rebuild now")

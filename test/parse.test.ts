@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseRefs, label } from "../src/parse.ts";
 import { BOOKS } from "../src/books.ts";
-import { relLink, summaryOrder, pageTitle } from "../src/build.ts";
+import { relLink, summaryOrder, pageTitle, chapterRanges, buildIndex } from "../src/build.ts";
 
 const refs = (s: string) => parseRefs(s).map((r) => `${BOOKS[r.book].name} ${label(r)}`);
 
@@ -45,4 +45,19 @@ test("helpers", () => {
   assert.equal(relLink("Theologicus/scripture-index.md", "Theologicus/New Page (draft).md"), "New%20Page%20%28draft%29.md");
   assert.deepEqual(summaryOrder("- [A](a/b.md)\n  - [B](./c.md)\n- [Rev]()"), ["a/b.md", "c.md"]);
   assert.equal(pageTitle('<img class="x">\n\n# **Genesis 22** [The](x.md) Sacrifice\n', "g.md"), "Genesis 22 The Sacrifice");
+});
+
+test("coverage", () => {
+  assert.equal(chapterRanges([1, 2, 3, 5, 7, 8]), "1\u20133, 5, 7\u20138");
+  const r = buildIndex(
+    [{ path: "b/a.md", content: "# A\nRuth 1:1, Ruth 2, Genesis 1-3 and Jude 3" }],
+    null,
+    { outputPath: "b/i.md", title: "I", headerImage: "", includeChapters: false },
+  );
+  assert.equal(r.chaptersCited, 3 + 2 + 1);
+  assert.equal(r.chaptersTotal, 1189);
+  assert.match(r.coverage, /\| Ruth \| 2\/4 \(50%\) \| 3\u20134 \|/);
+  assert.match(r.coverage, /## Never cited\n\nExodus · Leviticus/);
+  assert.doesNotMatch(r.markdown, /Coverage/);
+  assert.match(buildIndex([], null, { outputPath: "i.md", title: "I", headerImage: "", includeChapters: true, coverageOnIndex: true }).markdown, /^## Coverage$/m);
 });

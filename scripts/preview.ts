@@ -19,5 +19,6 @@ for (const includeChapters of [true, false]) {
   const r = buildIndex(pages, order, { outputPath: `${folder}/scripture-index.md`, title: "Scripture Index", headerImage: "", includeChapters });
   const out = `/tmp/scripture-index${includeChapters ? "" : "-verses-only"}.md`;
   writeFileSync(out, r.markdown);
-  console.log(`${out}: ${r.refs} refs, ${r.passages} passages, ${r.pages} pages, ${(r.markdown.length / 1024).toFixed(0)} KB`);
+  if (includeChapters) writeFileSync("/tmp/scripture-coverage.md", r.coverage);
+  console.log(`${out}: ${r.refs} refs, ${r.passages} passages, ${r.pages} pages, ${(r.markdown.length / 1024).toFixed(0)} KB, ${r.chaptersCited}/${r.chaptersTotal} chapters cited`);
 }

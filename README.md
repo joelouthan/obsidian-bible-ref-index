@@ -39,8 +39,16 @@ It skips code, HTML tags and comments, URLs, and link targets. It also discards 
 | Header image | *(empty)* | Optional `src` for an `<img class="intro-right">` line above the title. |
 | Only pages listed in SUMMARY.md | on | mdBook builds only the pages listed in `SUMMARY.md`, so links to any other page would be broken. |
 | Exclude | `CHANGELOG.md` | Comma-separated paths inside the book folder. |
+| Coverage report | *(empty = off)* | Vault path for a coverage note (see below). Keep it outside the book folder to keep it private. |
+| Coverage on index page | off | Also append the coverage section to the published index page. |
 
 The command **Rebuild Scripture index now** rebuilds the page immediately.
+
+### Coverage report
+
+The coverage report shows which parts of the Bible your book cites and which it doesn't, which helps when planning what to write next. For each book it shows a coverage bar, the number of chapters cited, the number of pages citing it, and the chapters not yet cited, for example `Exodus | ▓▓▓▓▓▓░░░░ | 22/40 | 51 | 1–2, 4–5, 9–11, …`. It also lists the books that are never cited and the 10 least-covered books.
+
+A chapter counts as cited if any reference touches it, even a single verse. Whole-chapter references count toward coverage even when *Include whole chapters* is off. The command **Open Scripture coverage report** opens the note.
 
 The plugin rewrites the index page only when its content changes. If your vault is synced or auto-committed to git, an unchanged index doesn't create a new commit.
 
